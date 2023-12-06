@@ -17,28 +17,32 @@ export class NoteService {
   ) {}
 
   async get(skip: number = 0, limit: number = 10) {
-    return await this.noteModel.find().skip(skip).limit(limit).exec();
+    try {
+      return await this.noteModel.find().skip(skip).limit(limit).exec();
+    } catch (e) {
+      return [];
+    }
   }
 
   async getDetail(_id: string) {
-    const document = await this.noteModel.findById(_id);
+    const document = await this.noteModel.findById(_id).exec();
     if (!document) {
       return null;
     } else return document;
   }
 
   async create(title: string) {
-    await this.noteModel.create({
+    return await this.noteModel.create({
       timestamp: new Date().toISOString(),
       title,
     });
   }
 
   async update(_id: string, title: string) {
-    await this.noteModel.findByIdAndUpdate(_id, {
+    return await this.noteModel.findByIdAndUpdate(_id, {
       title,
       timestamp: new Date().toISOString(),
-    });
+    }).exec();
   }
 
   async remove(_id) {

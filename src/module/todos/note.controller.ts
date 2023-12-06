@@ -1,10 +1,24 @@
-import { Controller, Get, Param, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { NoteService } from './note.service';
 import { Response } from 'express';
+import { IsString, IsNotEmpty } from 'class-validator';
 
-// class FormDataDTO {
-//   title: string
-// }
+class FormDataDTO {
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+}
 
 @Controller('note')
 export class NoteController {
@@ -44,5 +58,55 @@ export class NoteController {
     r.send({
       results: this.noteService.load(),
     });
+  }
+
+  @Post('/create')
+  @HttpCode(200)
+  async createNewNote(@Body() data: FormDataDTO, @Res() r: Response) {
+    try {
+      const results = await this.noteService.create(data.title);
+      r.send({
+        results,
+      });
+    } catch (e) {
+      r.send({
+        error: e,
+      });
+    }
+  }
+
+  @Put('/update/:noteId')
+  @HttpCode(200)
+  async updateNote(
+    @Body() data: FormDataDTO,
+    @Param('noteId') id: string,
+    @Res() r: Response,
+  ) {
+    try {
+      const results = await this.noteService.update(id, data.title);
+      // BUG: the result is not match the data update
+      r.send({
+        results,
+      });
+    } catch (e) {
+      r.status(500).send({
+        error: e,
+      });
+    }
+  }
+
+  @Delete('/delete/:noteId')
+  @HttpCode(200)
+  async remove(@Param('noteId') id: string, @Res() r: Response) {
+    try {
+      await this.noteService.remove(id);
+      r.send({
+        results: 'success',
+      });
+    } catch (e) {
+      r.status(500).send({
+        error: e,
+      });
+    }
   }
 }
