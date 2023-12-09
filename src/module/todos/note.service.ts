@@ -39,14 +39,16 @@ export class NoteService {
   }
 
   async update(_id: string, title: string) {
-    return await this.noteModel.findByIdAndUpdate(_id, {
-      title,
-      timestamp: new Date().toISOString(),
-    }).exec();
+    await this.noteModel
+      .findByIdAndUpdate(_id, {
+        title,
+        timestamp: new Date().toISOString(),
+      });
+    return await this.noteModel.findById(_id) ?? null
   }
 
   async remove(_id) {
-    await this.noteModel.findByIdAndDelete(_id);
+    return await this.noteModel.findByIdAndDelete(_id).exec() ?? null;
   }
 
   load() {

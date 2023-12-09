@@ -43,7 +43,7 @@ export class NoteController {
         });
       } else {
         r.send({
-          results: await this.noteService.getDetail(id),
+          results: data,
         });
       }
     } catch (error) {
@@ -85,9 +85,14 @@ export class NoteController {
     try {
       const results = await this.noteService.update(id, data.title);
       // BUG: the result is not match the data update
-      r.send({
-        results,
-      });
+      if (results)
+        r.send({
+          results,
+        });
+      else
+        r.status(404).send({
+          message: 'Not Found',
+        });
     } catch (e) {
       r.status(500).send({
         error: e,
@@ -99,10 +104,15 @@ export class NoteController {
   @HttpCode(200)
   async remove(@Param('noteId') id: string, @Res() r: Response) {
     try {
-      await this.noteService.remove(id);
-      r.send({
-        results: 'success',
-      });
+      const docs = await this.noteService.remove(id);
+      if (docs)
+        r.send({
+          results: 'success',
+        });
+      else
+        r.status(404).send({
+          message: 'Not Found',
+        });
     } catch (e) {
       r.status(500).send({
         error: e,
