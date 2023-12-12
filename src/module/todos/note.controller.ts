@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -13,6 +14,7 @@ import {
 import { NoteService } from './note.service';
 import { Response } from 'express';
 import { IsString, IsNotEmpty } from 'class-validator';
+import { ClientProxy } from '@nestjs/microservices';
 
 class FormDataDTO {
   @IsString()
@@ -22,7 +24,17 @@ class FormDataDTO {
 
 @Controller('note')
 export class NoteController {
-  constructor(private noteService: NoteService) {}
+  constructor(
+    private noteService: NoteService,
+    @Inject("NOTE_SERVICE") private readonly rabbitmqClient: ClientProxy
+  ) {
+  }
+  
+  @Get('/test')
+  async testRabbitmq() {
+    this.rabbitmqClient.emit("note_created"," hello")
+    return "TEST"
+  }
 
   @Get('/get')
   async getNotes(@Query() q, @Res() r: Response) {
@@ -85,14 +97,15 @@ export class NoteController {
     try {
       const results = await this.noteService.update(id, data.title);
       // BUG: the result is not match the data update
-      if (results)
+      if (results) {
         r.send({
           results,
         });
-      else
+      } else {
         r.status(404).send({
           message: 'Not Found',
         });
+      }
     } catch (e) {
       r.status(500).send({
         error: e,
@@ -105,14 +118,15 @@ export class NoteController {
   async remove(@Param('noteId') id: string, @Res() r: Response) {
     try {
       const docs = await this.noteService.remove(id);
-      if (docs)
+      if (docs) {
         r.send({
           results: 'success',
         });
-      else
+      } else {
         r.status(404).send({
           message: 'Not Found',
         });
+      }
     } catch (e) {
       r.status(500).send({
         error: e,

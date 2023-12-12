@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Note, NoteDocument } from './note.schema';
 import { Model } from 'mongoose';
 import { join } from 'path';
+import { RABBITMQ_OPT } from './note.module';
+import { ClientProxy, ClientProxyFactory } from '@nestjs/microservices';
 
 const xlsx = require('xlsx');
 
@@ -13,8 +15,10 @@ interface XlsData {
 @Injectable()
 export class NoteService {
   constructor(
-    @InjectModel(Note.name, 'db') private noteModel: Model<NoteDocument>,
-  ) {}
+    @InjectModel(Note.name, 'db') private noteModel: Model<NoteDocument>, 
+    @Inject("NOTE_SERVICE") private readonly rabbitmqClient: ClientProxy,
+  ) {
+  }
 
   async get(skip: number = 0, limit: number = 10) {
     try {
@@ -32,23 +36,28 @@ export class NoteService {
   }
 
   async create(title: string) {
-    return await this.noteModel.create({
+    const res = await this.noteModel.create({
       timestamp: new Date().toISOString(),
       title,
     });
+    this.rabbitmqClient.emit<string>('note_created', JSON.stringify(res));
+    return res;
   }
 
   async update(_id: string, title: string) {
-    await this.noteModel
-      .findByIdAndUpdate(_id, {
-        title,
-        timestamp: new Date().toISOString(),
-      });
-    return await this.noteModel.findById(_id) ?? null
+    await this.noteModel.findByIdAndUpdate(_id, {
+      title,
+      timestamp: new Date().toISOString(),
+    });
+    const res = await this.noteModel.findById(_id);
+    if (res) this.rabbitmqClient.emit('note_updated', res);
+    return (await this.noteModel.findById(_id)) ?? null;
   }
 
   async remove(_id) {
-    return await this.noteModel.findByIdAndDelete(_id).exec() ?? null;
+    const res = await this.noteModel.findByIdAndDelete(_id).exec();
+    if (res) this.rabbitmqClient.emit('note_removed', _id);
+    return res ?? null;
   }
 
   load() {
