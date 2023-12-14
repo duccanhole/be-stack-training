@@ -26,15 +26,8 @@ class FormDataDTO {
 export class NoteController {
   constructor(
     private noteService: NoteService,
-    @Inject("NOTE_SERVICE") private readonly rabbitmqClient: ClientProxy
-  ) {
-  }
-  
-  @Get('/test')
-  async testRabbitmq() {
-    this.rabbitmqClient.emit("note_created"," hello")
-    return "TEST"
-  }
+    @Inject('NOTE_SERVICE') private readonly rabbitmqClient: ClientProxy,
+  ) {}
 
   @Get('/get')
   async getNotes(@Query() q, @Res() r: Response) {
@@ -77,6 +70,7 @@ export class NoteController {
   async createNewNote(@Body() data: FormDataDTO, @Res() r: Response) {
     try {
       const results = await this.noteService.create(data.title);
+      this.rabbitmqClient.emit('note_created', results);
       r.send({
         results,
       });
@@ -101,6 +95,7 @@ export class NoteController {
         r.send({
           results,
         });
+        this.rabbitmqClient.emit('note_updated', results);
       } else {
         r.status(404).send({
           message: 'Not Found',
@@ -122,6 +117,7 @@ export class NoteController {
         r.send({
           results: 'success',
         });
+        this.rabbitmqClient.emit('note_removed', { _id: id });
       } else {
         r.status(404).send({
           message: 'Not Found',

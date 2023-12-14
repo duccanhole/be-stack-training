@@ -15,8 +15,7 @@ interface XlsData {
 @Injectable()
 export class NoteService {
   constructor(
-    @InjectModel(Note.name, 'db') private noteModel: Model<NoteDocument>, 
-    @Inject("NOTE_SERVICE") private readonly rabbitmqClient: ClientProxy,
+    @InjectModel(Note.name, 'db') private noteModel: Model<NoteDocument>
   ) {
   }
 
@@ -40,7 +39,6 @@ export class NoteService {
       timestamp: new Date().toISOString(),
       title,
     });
-    this.rabbitmqClient.emit<string>('note_created', JSON.stringify(res));
     return res;
   }
 
@@ -50,13 +48,11 @@ export class NoteService {
       timestamp: new Date().toISOString(),
     });
     const res = await this.noteModel.findById(_id);
-    if (res) this.rabbitmqClient.emit('note_updated', res);
     return (await this.noteModel.findById(_id)) ?? null;
   }
 
   async remove(_id) {
     const res = await this.noteModel.findByIdAndDelete(_id).exec();
-    if (res) this.rabbitmqClient.emit('note_removed', _id);
     return res ?? null;
   }
 
