@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  worker:
+    build: ./worker
+    container_name: "rabbitmq_worker_service"
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./worker/.env
