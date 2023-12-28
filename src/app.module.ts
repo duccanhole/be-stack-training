@@ -9,21 +9,20 @@ import { join } from 'path';
 
 config();
 
-const DB_PASSWORD = process.env.DB_PASSWORD;
+// const DB_PASSWORD = process.env.DB_PASSWORD;
+const DB_URL = process.env.DB_URL;
+const DB_CONNECTION = process.env.DB_CONNECTION;
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      `mongodb+srv://duccanhole:${DB_PASSWORD}@cluster0.kz05mst.mongodb.net/?retryWrites=true&w=majority`,
-      {
-        connectionName: 'db',
-      },
-    ),
+    MongooseModule.forRoot(DB_URL, {
+      connectionName: DB_CONNECTION,
+    }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '../static'), // added ../ to get one folder back
-      serveRoot: '/static/' //last slash was important
+      serveRoot: '/static/', //last slash was important
     }),
-    NoteModule
+    NoteModule,
   ],
   controllers: [AppController],
   providers: [AppService],
