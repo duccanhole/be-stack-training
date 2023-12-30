@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { NoteModule } from './module/todos/note.module';
+import { SearchModule } from './module/search/search.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -12,6 +13,9 @@ config();
 // const DB_PASSWORD = process.env.DB_PASSWORD;
 const DB_URL = process.env.DB_URL;
 const DB_CONNECTION = process.env.DB_CONNECTION;
+
+// console.log(process.env.);
+
 
 @Module({
   imports: [
@@ -23,6 +27,7 @@ const DB_CONNECTION = process.env.DB_CONNECTION;
       serveRoot: '/static/', //last slash was important
     }),
     NoteModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],
