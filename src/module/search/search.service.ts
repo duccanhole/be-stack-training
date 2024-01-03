@@ -39,10 +39,16 @@ export class SearchService {
     return await this.client.update(request);
   }
 
-  async remove(index: string, id: string) {
+  async removeById(index: string, id: string) {
     return await this.client.delete({
       index,
       id,
     });
+  }
+
+  async removeByQuery(
+    request: T.DeleteByQueryRequest | TB.DeleteByQueryRequest,
+  ) {
+    return await this.client.deleteByQuery(request);
   }
 }

@@ -41,8 +41,13 @@ export class SearchController {
     return await this.searchService.update(payload);
   }
 
+  @Delete('/delete')
+  async deleteDocumentQuery(@Query() q: T.DeleteByQueryRequest | TB.DeleteByQueryRequest){
+    return await this.searchService.removeByQuery(q)
+  }
+
   @Delete('/delete/:index/:id')
-  async deleteDocument(@Param('index') index: string, @Param('id') id: string) {
-    return await this.searchService.remove(index, id);
+  async deleteDocumentId(@Param('index') index: string, @Param('id') id: string) {
+    return await this.searchService.removeById(index, id);
   }
 }
