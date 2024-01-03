@@ -1,6 +1,15 @@
-import { Controller, Get, Post, Query } from '@nestjs/common';
-import { SearchRequest as TSearchRequest } from '@elastic/elasticsearch/lib/api/types';
-import { SearchRequest as TBSearchRequest } from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import T from '@elastic/elasticsearch/lib/api/types';
+import TB from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
 import { SearchService } from './search.service';
 
 @Controller('search')
@@ -17,13 +26,23 @@ export class SearchController {
     return await this.searchService.getInfo();
   }
 
-  @Get('/query')
-  querySearch(@Query() q: TSearchRequest | TBSearchRequest) {
-    return this.searchService.search(q);
+  @Get('/find')
+  async findDocument(@Query() q: T.SearchRequest | TB.SearchRequest) {
+    return await this.searchService.search(q);
   }
 
   @Post('/index')
-  indexData() {
-    return 'index';
+  async indexDocument(@Body() payload: T.IndexRequest | TB.IndexRequest) {
+    return await this.searchService.index(payload);
+  }
+
+  @Put('/update')
+  async updateDocument(@Body() payload: T.UpdateRequest | TB.UpdateRequest) {
+    return await this.searchService.update(payload);
+  }
+
+  @Delete('/delete/:index/:id')
+  async deleteDocument(@Param('index') index: string, @Param('id') id: string) {
+    return await this.searchService.remove(index, id);
   }
 }

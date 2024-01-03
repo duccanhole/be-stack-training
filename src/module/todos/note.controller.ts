@@ -90,7 +90,6 @@ export class NoteController {
   ) {
     try {
       const results = await this.noteService.update(id, data.title);
-      // BUG: the result is not match the data update
       if (results) {
         r.send({
           results,

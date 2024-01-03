@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
-import { SearchRequest as TSearchRequest } from '@elastic/elasticsearch/lib/api/types';
-import { SearchRequest as TBSearchRequest } from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
+import T from '@elastic/elasticsearch/lib/api/types';
+import TB from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
 import { Injectable } from '@nestjs/common';
 import { config } from 'dotenv';
 
@@ -27,7 +27,22 @@ export class SearchService {
     return await this.client.info();
   }
 
-  async search(request: TSearchRequest | TBSearchRequest) {
+  async search(request: T.SearchRequest | TB.SearchRequest) {
     return await this.client.search(request);
+  }
+
+  async index(request: T.IndexRequest | TB.IndexRequest) {
+    return await this.client.index(request);
+  }
+
+  async update(request: T.UpdateRequest | TB.UpdateRequest) {
+    return await this.client.update(request);
+  }
+
+  async remove(index: string, id: string) {
+    return await this.client.delete({
+      index,
+      id,
+    });
   }
 }
