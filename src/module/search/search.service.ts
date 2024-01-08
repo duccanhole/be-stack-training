@@ -28,6 +28,13 @@ export class SearchService {
   }
 
   async search(request: T.SearchRequest | TB.SearchRequest) {
+    // query example
+    /**
+     * {
+     *    index: "search_todos",
+     *    q: value here
+     * }
+     */
     return await this.client.search(request);
   }
 
@@ -37,6 +44,10 @@ export class SearchService {
 
   async update(request: T.UpdateRequest | TB.UpdateRequest) {
     return await this.client.update(request);
+  }
+
+  async updateByQuery(request: T.UpdateByQueryRequest | TB.UpdateByQueryRequest) {
+    return await this.client.updateByQuery(request)
   }
 
   async removeById(index: string, id: string) {
