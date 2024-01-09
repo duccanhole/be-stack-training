@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
-import { SearchService } from '../../../src/module/search/search.service';
+import { SearchService } from '../search/search.service';
 
 @Controller('mailer')
 export class MailerController {

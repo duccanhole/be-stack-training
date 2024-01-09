@@ -8,6 +8,8 @@ RUN yarn
 
 COPY . .
 
+# RUN node build.ts
+
 RUN yarn build
 
 EXPOSE 4000

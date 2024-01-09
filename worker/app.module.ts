@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from './src/mailer/mailer.module';
-import { SearchModule } from '../src/module/search/search.module';
+import { SearchModule } from './src/search/search.module';
 // import { AppController } from './app.controller';
 // import { AppService } from './app.service';
 
