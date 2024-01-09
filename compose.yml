@@ -1,6 +1,10 @@
 version: '3'
 
 services:
+  build:
+    build: 
+      context: .
+      dockerfile: Dockerfile.build
   todos:
     build: .
     container_name: "todos_service"
@@ -8,23 +12,23 @@ services:
       - "3000:3000"
     env_file:
       - .env
-    # depends_on:
-    #   - rabbitmq
-  # worker:
-  #   build: ./worker
-  #   container_name: "rabbitmq_worker_service"
-  #   ports:
-  #     - "4000:4000"
-  #   env_file:
-  #     - ./worker/.env
-  #   depends_on:
-  #     - rabbitmq
-  # rabbitmq:
-  #   image: rabbitmq:management
-  #   container_name: rabbitmq
-  #   environment:
-  #     - RABBITMQ_DEFAULT_USER=guest
-  #     - RABBITMQ_DEFAULT_PASS=guest
-  #   ports:
-  #     - "5672:5672"
-  #     - "15672:15672"
+    depends_on:
+      - rabbitmq
+  worker:
+    build: ./worker
+    container_name: "rabbitmq_worker_service"
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./worker/.env
+    depends_on:
+      - rabbitmq
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
